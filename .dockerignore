@@ -1,0 +1,9 @@
+.git
+.gitignore
+.env
+.prettierrc.yml
+docker-composee.yml
+README.md
+node_modules
+dist
+tools

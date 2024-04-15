@@ -1,0 +1,8 @@
+.vs
+.vscode
+.volumes
+/sec/**/*
+!/sec/.gitkeep
+/dist
+/temp
+node_modules
