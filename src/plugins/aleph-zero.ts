@@ -1,31 +1,38 @@
 import { FastifyPluginAsync } from 'fastify'
-import { ApiPromise, WsProvider } from '@polkadot/api'
+import { ApiPromise, Keyring, WsProvider } from '@polkadot/api'
 import { BN, BN_ONE } from '@polkadot/util'
 import { WeightV2 } from '@polkadot/types/interfaces'
 import { ContractPromise } from '@polkadot/api-contract'
 import { KeyringPair$Json } from '@polkadot/keyring/types'
 import { readFileAsync } from '../services/fs-utils.js'
 import { parseJsonFromFile } from '../services/json-utils.js'
-import { AZ_URL, AZ_CONTRACT, AZ_ACCOUNT_PATH, AZ_METADATA_PATH } from '../config.js'
+import { AZ_URL, AZ_CONTRACT, AZ_ACCOUNT_PATH, AZ_METADATA_PATH, AZ_PASSPHRASE } from '../config.js'
 import fp from 'fastify-plugin'
 
-interface IBody {
-  queryName: string
-  arguments: unknown[]
+interface AlephZero {
+  account: KeyringPair$Json
+  contract: ContractPromise
+  readOnlyGasLimit: WeightV2
+
+  query<T = unknown>(name: string, ...params: unknown[]): Promise<T>
+  transact(name: string, ...params: unknown[]): Promise<void>
 }
 
-interface IQuerySchema {
-  Body: IBody
+declare module 'fastify' {
+  interface FastifyRequest {
+    az: AlephZero
+  }
 }
 
 const alephZero: FastifyPluginAsync = async (fastify) => {
-  const defaultOptions = { onRequest: [fastify.authenticate], onSend: [fastify.encryptPayload] }
-
   const provider = new WsProvider(AZ_URL)
   const api = await ApiPromise.create({ provider })
 
   const metadata = await readFileAsync(AZ_METADATA_PATH)
   const account = await parseJsonFromFile<KeyringPair$Json>(AZ_ACCOUNT_PATH)
+
+  const keyPair = new Keyring().createFromJson(account)
+  keyPair.unlock(AZ_PASSPHRASE)
 
   const contract = new ContractPromise(api, metadata, AZ_CONTRACT)
 
@@ -34,26 +41,34 @@ const alephZero: FastifyPluginAsync = async (fastify) => {
     proofSize: new BN(5_000_000_000_000).isub(BN_ONE),
   }) as WeightV2
 
-  fastify.post<IQuerySchema>('/aleph-zero', defaultOptions, async (request, reply) => {
-    const query = contract.query[request.body.queryName]
-    if (!query) {
-      return reply.status(500).send('Unknown query')
-    }
+  const query = async (name: string, ...params: unknown[]) => {
+    const result = await contract.query[name](account.address, { gasLimit: readOnlyGasLimit }, ...params)
 
-    try {
-      const result = await query(account.address, { gasLimit: readOnlyGasLimit }, ...request.body.arguments)
-
-      if (result.result.isOk) {
-        const data = result.output.toPrimitive()
-
-        return { result: data['ok'] }
-      } else {
-        return reply.status(500).send()
+    if (result.result.isOk) {
+      const data = result.output.toPrimitive()
+      if (Object.keys(data).includes('ok')) {
+        return data['ok']
       }
-    } catch (err) {
-      console.log(err)
-      return reply.status(500).send(err)
+      return data
     }
+
+    return null
+  }
+
+  async function transact(name: string, ...params: unknown[]) {
+    const { gasRequired } = await contract.query[name](account.address, { gasLimit: readOnlyGasLimit }, ...params)
+
+    const options = {
+      gasLimit: api.registry.createType('WeightV2', gasRequired) as WeightV2,
+    }
+
+    await contract.tx[name](options, ...params).signAndSend(keyPair)
+  }
+
+  const alephZero: AlephZero = { contract, account, readOnlyGasLimit, query, transact }
+
+  fastify.addHook('onRequest', async (request) => {
+    request.az = alephZero
   })
 
   fastify.addHook('onClose', async () => {

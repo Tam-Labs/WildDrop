@@ -55,7 +55,7 @@ Please be advised that you have the option to utilize Docker to run our project 
    | PORT             | Server listen port             | 9876                    |
    | DB_HOST          | PostgreSQL host                | localhost               |
    | DB_NAME          | PostgreSQL database name       | wilddrop                |
-   | DB_USEER         | PostgreSQL user name           | wilddrop                |
+   | DB_USER          | PostgreSQL user name           | wilddrop                |
    | DB_PASS          | PostgreSQL user password       | wilddrop                |
    | AZ_CONTRACT      | AlephZero contract hash        |                         |
    | AZ_ACCOUNT_PATH  | Path to account.json           |                         |

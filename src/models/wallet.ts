@@ -16,12 +16,15 @@ export class Wallet extends Model {
    */
   [EntityRepositoryType]?: WalletRepository
 
+  @PrimaryKey()
+  id!: number
+
   /**
    * Public key associated with the wallet.
    * @type {string}
    */
-  @PrimaryKey({ type: 'text' })
-  publicKey!: string
+  @Property({ type: 'text' })
+  address!: string
 
   /**
    * Private key associated with the wallet.
@@ -36,10 +39,10 @@ export class Wallet extends Model {
    * @param {string} publicKey - The public key associated with the wallet.
    * @param {string} privateKey - The private key associated with the wallet.
    */
-  constructor(publicKey: string, privateKey: string) {
+  constructor(address: string, privateKey: string) {
     super()
 
-    this.publicKey = publicKey
+    this.address = address
     this.privateKey = privateKey
   }
 }

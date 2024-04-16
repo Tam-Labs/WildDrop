@@ -1,4 +1,4 @@
-import { Entity, EntityRepositoryType, PrimaryKey } from '@mikro-orm/core'
+import { Entity, EntityRepositoryType, PrimaryKey, Property } from '@mikro-orm/core'
 import { AuthKeyRepository } from '../repositories/auth-key.js'
 import { Model } from './model.js'
 
@@ -15,11 +15,14 @@ export class AuthKey extends Model {
    */
   [EntityRepositoryType]?: AuthKeyRepository
 
+  @PrimaryKey()
+  id!: number
+
   /**
    * Public key of allowed connection in hex format.
    * @type {string}
    */
-  @PrimaryKey({ type: 'text' })
+  @Property({ type: 'text', nullable: false })
   publicKey!: string
 
   /**

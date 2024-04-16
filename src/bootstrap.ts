@@ -1,6 +1,7 @@
 import { fastify } from 'fastify'
 import database from './plugins/database.js'
 import auth from './plugins/auth.js'
+import wallet from './plugins/wallet.js'
 import alephZero from './plugins/aleph-zero.js'
 
 /**
@@ -17,6 +18,8 @@ export async function bootstrap() {
 
   // Register request auth plugin for handling incoming requests.
   await app.register(auth)
+
+  await app.register(wallet)
 
   // Register request AlephZero plugin for handling incoming requests.
   await app.register(alephZero)
