@@ -27,7 +27,9 @@ const wallet: FastifyPluginAsync = async (fastify) => {
   fastify.get('/wallet', hooks, async (request) => {
     const wallets = await request.orm.em.getRepository(Wallet).findAll({ fields: ['address'] })
 
-    return wallets.map((wallet) => wallet.address)
+    return {
+      addresses: wallets.map((wallet) => wallet.address),
+    }
   })
 
   fastify.get<IBalanceSchema>('/wallet/:address', hooks, async (request, reply) => {
@@ -38,9 +40,9 @@ const wallet: FastifyPluginAsync = async (fastify) => {
       return reply.status(404).send('No wallet found.')
     }
 
-    const result = await request.az.query<number>('balanceOf', address)
+    const balance = await request.az.query<number>('balanceOf', address)
 
-    return result
+    return { balance }
   })
 
   fastify.post('/wallet', hooks, async (request) => {
@@ -54,7 +56,7 @@ const wallet: FastifyPluginAsync = async (fastify) => {
 
     await request.orm.em.persist(wallet).flush()
 
-    return wallet.address
+    return { address }
   })
 
   fastify.put<IUpdateSchema>('/wallet/:address', hooks, async (request, reply) => {
