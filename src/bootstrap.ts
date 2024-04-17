@@ -1,4 +1,5 @@
 import { fastify } from 'fastify'
+import { SERVER_PORT } from './config.js'
 import database from './plugins/database.js'
 import auth from './plugins/auth.js'
 import wallet from './plugins/wallet.js'
@@ -25,5 +26,5 @@ export async function bootstrap() {
   await app.register(alephZero)
 
   // Start the server and return the URL where it is listening.
-  return await app.listen({ port: Number(process.env.PORT) })
+  return await app.listen({ port: SERVER_PORT })
 }
