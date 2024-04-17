@@ -24,5 +24,6 @@ export default defineConfig({
     glob: '!(*.d).{js,ts}',
     transactional: true,
     allOrNothing: true,
+    disableForeignKeys: false,
   },
 })
