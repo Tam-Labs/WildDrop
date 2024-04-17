@@ -3,14 +3,14 @@ import { ApiPromise, Keyring, WsProvider } from '@polkadot/api'
 import { BN, BN_ONE } from '@polkadot/util'
 import { WeightV2 } from '@polkadot/types/interfaces'
 import { ContractPromise } from '@polkadot/api-contract'
-import { KeyringPair$Json } from '@polkadot/keyring/types'
+import { KeyringPair$Json, KeyringPair } from '@polkadot/keyring/types'
 import { readFileAsync } from '../services/fs-utils.js'
 import { parseJsonFromFile } from '../services/json-utils.js'
-import { AZ_URL, AZ_CONTRACT, AZ_ACCOUNT_PATH, AZ_METADATA_PATH, AZ_PASSPHRASE } from '../config.js'
+import { AZ_URL, AZ_CONTRACT, AZ_ACCOUNT_PATH, AZ_METADATA_PATH, AZ_PASSPHRASE, AZ_ACCOUNT } from '../config.js'
 import fp from 'fastify-plugin'
 
 interface AlephZero {
-  account: KeyringPair$Json
+  account: KeyringPair
   contract: ContractPromise
   readOnlyGasLimit: WeightV2
 
@@ -24,15 +24,25 @@ declare module 'fastify' {
   }
 }
 
+async function createKeyringPair(): Promise<KeyringPair> {
+  if (AZ_ACCOUNT) {
+    const json = JSON.parse(Buffer.from(AZ_ACCOUNT, 'base64').toString('utf8'))
+
+    return new Keyring().createFromJson(json)
+  } else {
+    const json = await parseJsonFromFile<KeyringPair$Json>(AZ_ACCOUNT_PATH)
+
+    return new Keyring().createFromJson(json)
+  }
+}
+
 const alephZero: FastifyPluginAsync = async (fastify) => {
   const provider = new WsProvider(AZ_URL)
   const api = await ApiPromise.create({ provider })
 
   const metadata = await readFileAsync(AZ_METADATA_PATH)
-  const account = await parseJsonFromFile<KeyringPair$Json>(AZ_ACCOUNT_PATH)
-
-  const keyPair = new Keyring().createFromJson(account)
-  keyPair.unlock(AZ_PASSPHRASE)
+  const account = await createKeyringPair()
+  account.unlock(AZ_PASSPHRASE)
 
   const contract = new ContractPromise(api, metadata, AZ_CONTRACT)
 
@@ -62,7 +72,7 @@ const alephZero: FastifyPluginAsync = async (fastify) => {
       gasLimit: api.registry.createType('WeightV2', gasRequired) as WeightV2,
     }
 
-    await contract.tx[name](options, ...params).signAndSend(keyPair)
+    await contract.tx[name](options, ...params).signAndSend(account)
   }
 
   const alephZero: AlephZero = { contract, account, readOnlyGasLimit, query, transact }

@@ -12,8 +12,9 @@ export const DB_DEBUG = s2b(process.env.DB_PASS)
 
 export const SESSION_EXPIRE = Number(process.env.SESSION_EXPIRE) || 60
 
-export const AZ_CONTRACT = process.env.AZ_CONTRACT
-export const AZ_ACCOUNT_PATH = process.env.AZ_ACCOUNT_PATH
+export const AZ_CONTRACT = process.env.AZ_CONTRACT // Contract address.
+export const AZ_ACCOUNT = process.env.AZ_ACCOUNT // Account JSON file encoded as base64.
+export const AZ_ACCOUNT_PATH = process.env.AZ_ACCOUNT_PATH // Used when AC_ACCOUNT is empty.
 export const AZ_METADATA_PATH = process.env.AZ_METADATA_PATH
 export const AZ_URL = process.env.AZ_URL
 export const AZ_PASSPHRASE = process.env.AZ_PASSPHRASE

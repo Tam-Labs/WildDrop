@@ -7,10 +7,10 @@ import alephZero from './plugins/aleph-zero.js'
 
 /**
  * Bootstraps the application by initializing necessary configurations and dependencies.
- * @function bootstrap
- * @returns {Promise<string>} A promise that resolves to the URL where the server is started.
+ *
+ * @returns A promise that resolves to the URL where the server is started.
  */
-export async function bootstrap() {
+export async function bootstrap(): Promise<string> {
   // Initialize Fastify application.
   const app = fastify()
 
