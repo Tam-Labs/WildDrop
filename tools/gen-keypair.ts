@@ -2,7 +2,7 @@ import { hideBin } from 'yargs/helpers'
 import { writeFileSync } from 'node:fs'
 import { cwd } from 'node:process'
 import { join } from 'node:path'
-import { generateKeyPair } from 'crypto'
+import { createPublicKey, generateKeyPair } from 'node:crypto'
 import yargs from 'yargs'
 
 const argv = await yargs(hideBin(process.argv))
@@ -33,10 +33,19 @@ generateKeyPair(
       passphrase: argv.passphrase,
     },
   },
-  (err, publicKey, privateKey) => {
+  (err, publicKeyPem, privateKeyPem) => {
     if (!err) {
-      writeFileSync(join(cwd(), argv.output, 'public.key'), publicKey, 'ascii')
-      writeFileSync(join(cwd(), argv.output, 'private.key'), privateKey, 'ascii')
+      writeFileSync(join(cwd(), argv.output, 'public.key'), publicKeyPem, 'ascii')
+      writeFileSync(join(cwd(), argv.output, 'private.key'), privateKeyPem, 'ascii')
+
+      const publicKey = createPublicKey({
+        key: publicKeyPem,
+        format: 'pem',
+      })
+        .export({ format: 'der', type: 'pkcs1' })
+        .toString('hex')
+
+      console.log('Public key: ' + publicKey)
     } else {
       console.error(err)
     }
