@@ -38,7 +38,9 @@ const wallet: FastifyPluginAsync = async (fastify) => {
   fastify.get<IBalanceSchema>('/wallet/:publicKey', hooks, async (request) => {
     const { publicKey } = request.params
 
-    const balance = await request.az.query<number>('balanceOf', publicKey)
+    const address = encodeAddress('0x' + publicKey)
+
+    const balance = await request.az.query<number>('balanceOf', address)
 
     return { balance }
   })
