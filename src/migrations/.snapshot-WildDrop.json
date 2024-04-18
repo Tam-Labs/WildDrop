@@ -147,14 +147,14 @@
     },
     {
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "unsigned": true,
-          "autoincrement": true,
-          "primary": true,
+        "public_key": {
+          "name": "public_key",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
           "nullable": false,
-          "mappedType": "integer"
+          "mappedType": "text"
         },
         "created_at": {
           "name": "created_at",
@@ -175,24 +175,6 @@
           "nullable": false,
           "length": 6,
           "mappedType": "datetime"
-        },
-        "address": {
-          "name": "address",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "private_key": {
-          "name": "private_key",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
         }
       },
       "name": "wallet",
@@ -201,7 +183,7 @@
         {
           "keyName": "wallet_pkey",
           "columnNames": [
-            "id"
+            "public_key"
           ],
           "composite": false,
           "constraint": true,

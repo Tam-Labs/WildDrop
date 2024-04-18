@@ -2,7 +2,7 @@ export type Environment = 'development' | 'production' | 'testing'
 
 const s2b = (s?: string) => ['1', 'true'].includes(s?.toLowerCase())
 
-export const SERVER_PORT = Number(process.env.SERVER_PORT) || 9876
+export const PORT = Number(process.env.PORT) || 9876
 
 export const DB_HOST = process.env.DB_HOST ?? 'localhost'
 export const DB_NAME = process.env.DB_NAME ?? 'WildDrop'
@@ -15,6 +15,7 @@ export const SESSION_EXPIRE = Number(process.env.SESSION_EXPIRE) || 60
 export const AZ_CONTRACT = process.env.AZ_CONTRACT // Contract address.
 export const AZ_ACCOUNT = process.env.AZ_ACCOUNT // Account JSON file encoded as base64.
 export const AZ_ACCOUNT_PATH = process.env.AZ_ACCOUNT_PATH // Used when AC_ACCOUNT is empty.
+export const AZ_METADATA = process.env.AZ_METADATA // Metadata JSON file encoded as base64.
 export const AZ_METADATA_PATH = process.env.AZ_METADATA_PATH
 export const AZ_URL = process.env.AZ_URL
 export const AZ_PASSPHRASE = process.env.AZ_PASSPHRASE

@@ -66,6 +66,10 @@ const auth: FastifyPluginAsync = async (fastify) => {
   }
 
   const encryptPayload = async (request: FastifyRequest, reply: FastifyReply, payload: unknown) => {
+    if (payload === null || payload === undefined) {
+      return null
+    }
+
     const buffer = Buffer.isBuffer(payload)
       ? payload
       : typeof payload === 'string'

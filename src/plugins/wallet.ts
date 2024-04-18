@@ -1,72 +1,55 @@
 import { FastifyPluginAsync } from 'fastify'
-import { generateED25519, getPublicED25519 } from '../services/ed25519.js'
 import { Wallet } from '../models/wallet.js'
 import { encodeAddress } from '@polkadot/util-crypto'
 import fp from 'fastify-plugin'
 
-interface IAddressParamsSchema {
-  address: string
-}
-
 interface IBalanceSchema {
-  Params: IAddressParamsSchema
-}
-
-interface IUpdateBodySchema {
-  balance: number
+  Params: { publicKey: string }
 }
 
 interface IUpdateSchema {
-  Params: IAddressParamsSchema
-  Body: IUpdateBodySchema
+  Params: { publicKey: string }
+  Body: { balance: number }
+}
+
+interface IRegisterSchema {
+  Params: { publicKey: string }
 }
 
 const wallet: FastifyPluginAsync = async (fastify) => {
   const hooks = { onRequest: [fastify.authenticate], onSend: [fastify.encryptPayload] }
 
   fastify.get('/wallet', hooks, async (request) => {
-    const wallets = await request.orm.em.getRepository(Wallet).findAll({ fields: ['address'] })
+    const wallets = await request.orm.em.getRepository(Wallet).findAll({ fields: ['publicKey'] })
 
-    return {
-      addresses: wallets.map((wallet) => wallet.address),
-    }
+    const keys = wallets.map((wallet) => wallet.publicKey)
+
+    return { keys }
   })
 
-  fastify.get<IBalanceSchema>('/wallet/:address', hooks, async (request, reply) => {
-    const { address } = request.params
+  fastify.post<IRegisterSchema>('/wallet/:publicKey', hooks, async (request, reply) => {
+    const { publicKey } = request.params
 
-    const exists = await request.orm.em.getRepository(Wallet).exists(address)
-    if (!exists) {
-      return reply.status(404).send('No wallet found.')
-    }
+    await request.orm.em.getRepository(Wallet).ensureExists(publicKey)
 
-    const balance = await request.az.query<number>('balanceOf', address)
+    return reply.status(201).send()
+  })
+
+  fastify.get<IBalanceSchema>('/wallet/:publicKey', hooks, async (request) => {
+    const { publicKey } = request.params
+
+    const balance = await request.az.query<number>('balanceOf', publicKey)
 
     return { balance }
   })
 
-  fastify.post('/wallet', hooks, async (request) => {
-    const privateKey = await generateED25519()
-    const publicKey = await getPublicED25519(privateKey)
-    const address = encodeAddress(publicKey)
-
-    const privateKeyHex = Buffer.from(privateKey).toString('hex')
-
-    const wallet = new Wallet(address, privateKeyHex)
-
-    await request.orm.em.persist(wallet).flush()
-
-    return { address }
-  })
-
-  fastify.put<IUpdateSchema>('/wallet/:address', hooks, async (request, reply) => {
-    const { address } = request.params
+  fastify.put<IUpdateSchema>('/wallet/:publicKey', hooks, async (request, reply) => {
+    const { publicKey } = request.params
     const { balance } = request.body
 
-    const exists = await request.orm.em.getRepository(Wallet).exists(request.params.address)
-    if (!exists) {
-      return reply.status(404).send('No wallet found.')
-    }
+    const address = encodeAddress('0x' + publicKey)
+
+    await request.orm.em.getRepository(Wallet).ensureExists(publicKey)
 
     await request.az.transact('update', address, balance)
 

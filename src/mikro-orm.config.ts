@@ -18,6 +18,9 @@ export default defineConfig({
   debug: DB_DEBUG,
   highlighter: new SqlHighlighter(),
   extensions: [Migrator],
+  schemaGenerator: {
+    disableForeignKeys: false,
+  },
   migrations: {
     path: join(cwd(), 'dist/migrations'),
     pathTs: join(cwd(), 'src/migrations'),

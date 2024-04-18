@@ -6,7 +6,15 @@ import { ContractPromise } from '@polkadot/api-contract'
 import { KeyringPair$Json, KeyringPair } from '@polkadot/keyring/types'
 import { readFileAsync } from '../services/fs-utils.js'
 import { parseJsonFromFile } from '../services/json-utils.js'
-import { AZ_URL, AZ_CONTRACT, AZ_ACCOUNT_PATH, AZ_METADATA_PATH, AZ_PASSPHRASE, AZ_ACCOUNT } from '../config.js'
+import {
+  AZ_URL,
+  AZ_CONTRACT,
+  AZ_ACCOUNT_PATH,
+  AZ_METADATA_PATH,
+  AZ_PASSPHRASE,
+  AZ_ACCOUNT,
+  AZ_METADATA,
+} from '../config.js'
 import fp from 'fastify-plugin'
 
 interface AlephZero {
@@ -36,11 +44,19 @@ async function createKeyringPair(): Promise<KeyringPair> {
   }
 }
 
+async function loadMetadata(): Promise<string> {
+  if (AZ_METADATA) {
+    return Buffer.from(AZ_ACCOUNT, 'base64').toString('utf8')
+  } else {
+    return await readFileAsync(AZ_METADATA_PATH)
+  }
+}
+
 const alephZero: FastifyPluginAsync = async (fastify) => {
   const provider = new WsProvider(AZ_URL)
   const api = await ApiPromise.create({ provider })
 
-  const metadata = await readFileAsync(AZ_METADATA_PATH)
+  const metadata = await loadMetadata()
   const account = await createKeyringPair()
   account.unlock(AZ_PASSPHRASE)
 

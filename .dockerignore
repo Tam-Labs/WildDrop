@@ -2,8 +2,10 @@
 .gitignore
 .env
 .prettierrc.yml
-docker-composee.yml
+docker-compose.yml
 README.md
 node_modules
 dist
 tools
+contract
+sec

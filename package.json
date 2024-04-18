@@ -6,6 +6,7 @@
   "author": "Tubbly",
   "scripts": {
     "dev": "dotenvx run -- nodemon -q src/index.ts",
+    "start": "dotenvx run -- ts-node src/index.ts",
     "prod": "node dist/index.js",
     "build": "tsc"
   },

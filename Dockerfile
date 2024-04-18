@@ -11,6 +11,9 @@ WORKDIR /app
 COPY --from=BUILDER ./app/dist ./dist
 COPY package.json .
 COPY yarn.lock .
+COPY ./data ./data
 RUN yarn install --production --frozen-lockfile --silent --non-interactive
+
+EXPOSE 9876
 
 CMD ["yarn", "prod"]

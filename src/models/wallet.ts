@@ -16,33 +16,21 @@ export class Wallet extends Model {
    */
   [EntityRepositoryType]?: WalletRepository
 
-  @PrimaryKey()
-  id!: number
-
   /**
-   * Public key associated with the wallet.
+   * Address associated with the wallet (in hex format).
    * @type {string}
    */
-  @Property({ type: 'text' })
-  address!: string
-
-  /**
-   * Private key associated with the wallet.
-   * @type {string}
-   */
-  @Property({ type: 'text' })
-  privateKey!: string
+  @PrimaryKey({ type: 'text' })
+  publicKey!: string
 
   /**
    * Creates a new instance of Wallet.
    * @constructor
-   * @param {string} publicKey - The public key associated with the wallet.
-   * @param {string} privateKey - The private key associated with the wallet.
+   * @param publicKey - publicKey associated with the wallet.
    */
-  constructor(address: string, privateKey: string) {
+  constructor(publicKey: string) {
     super()
 
-    this.address = address
-    this.privateKey = privateKey
+    this.publicKey = publicKey
   }
 }
