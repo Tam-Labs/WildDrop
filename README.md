@@ -1,6 +1,6 @@
 # **WildDrop**
 
-WildDrop is a crypto custody service implemented using NodeJS and [AlephZero](https://alephzero.org/) blockchain technology. The service provides secure storage and management of various cryptocurrencies, offering a robust solution for individuals and institutions seeking reliable custody services.
+WildDrop is a crypto service implemented using NodeJS and [AlephZero](https://alephzero.org/) blockchain technology. The service provides secure storage and management of various cryptocurrencies, offering a robust solution for individuals and institutions seeking reliable services.
 
 ## Important Notice
 
