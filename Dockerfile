@@ -1,19 +1,19 @@
-FROM node:20-alpine3.18 AS BUILDER
+FROM oven/bun:latest AS BUILDER
 
 WORKDIR /app
 COPY . .
-RUN yarn install --frozen-lockfile --silent --non-interactive
-RUN yarn build 
+RUN bun install --frozen-lockfile --silent
+RUN bun run build 
 
-FROM node:20-alpine3.18 AS FINAL
+FROM oven/bun:latest AS FINAL
 
 WORKDIR /app
 COPY --from=BUILDER ./app/dist ./dist
 COPY package.json .
-COPY yarn.lock .
+COPY bun.lockb .
 COPY ./data ./data
-RUN yarn install --production --frozen-lockfile --silent --non-interactive
+RUN bun install --production --frozen-lockfile --silent
 
 EXPOSE 9876
 
-CMD ["yarn", "prod"]
+CMD ["bun", "run", "prod"]
