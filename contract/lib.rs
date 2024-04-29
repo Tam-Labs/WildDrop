@@ -8,17 +8,24 @@ mod tubbly {
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
-    #[derive(Default)]
     pub struct Tubbly {
+        owner: AccountId,
         balances: Mapping<AccountId, Balance>,
+    }
+
+    #[derive(Debug, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    pub enum Error {
+        Forbidden,
     }
 
     impl Tubbly {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new() -> Self {
+            let owner = Self::env().caller();
             let balances = Mapping::default();
-            Self { balances }
+            Self { owner, balances }
         }
 
         #[ink(message)]
@@ -27,8 +34,15 @@ mod tubbly {
         }
 
         #[ink(message)]
-        pub fn update(&mut self, account: AccountId, balance: Balance) {
+        pub fn update(&mut self, account: AccountId, balance: Balance) -> Result<(), Error> {
+            let from = self.env().caller();
+            if from != self.owner {
+                return Err(Error::Forbidden);
+            }
+
             self.balances.insert(account, &balance);
+
+            Ok(())
         }
     }
 
@@ -37,21 +51,24 @@ mod tubbly {
     /// The below code is technically just normal Rust code.
     #[cfg(test)]
     mod tests {
+        use ink::env::test::set_caller;
+
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
         #[ink::test]
-        fn transfer_works() {
+        fn update_works() {
             let mut tubbly = Tubbly::new();
+
             let accounts = ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
 
             assert_eq!(tubbly.balance_of(accounts.bob), 0);
+            assert!(tubbly.update(accounts.bob, 100).is_ok());
+            assert_eq!(tubbly.balance_of(accounts.bob), 100);
 
-            tubbly.update(accounts.bob, 10);
-            assert_eq!(tubbly.balance_of(accounts.bob), 10);
+            set_caller::<ink::env::DefaultEnvironment>(accounts.bob);
 
-            tubbly.update(accounts.bob, 64);
-            assert_eq!(tubbly.balance_of(accounts.bob), 64);
+            assert_eq!(tubbly.update(accounts.charlie, 54), Err(Error::Forbidden))
         }
     }
 

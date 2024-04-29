@@ -1,7 +1,7 @@
 [package]
 name = "tubbly"
 version = "0.1.0"
-authors = ["[your_name] <[your_email]>"]
+authors = ["TAM LABS"]
 edition = "2021"
 
 [dependencies]
@@ -14,9 +14,10 @@ ink_e2e = { version = "5.0.0" }
 path = "lib.rs"
 
 [features]
-default = ["std"]
+default = ["std", "contract"]
 std = [
     "ink/std",
 ]
+contract = []
 ink-as-dependency = []
 e2e-tests = []
