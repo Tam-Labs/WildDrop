@@ -181,6 +181,16 @@ mod tubbly {
         }
 
         #[ink::test]
+        #[should_panic]
+        fn submit_fails() {
+            let mut tubbly = Tubbly::new();
+
+            tubbly.next_id = RequestId::MAX;
+
+            tubbly.submit(100);
+        }
+
+        #[ink::test]
         fn confirm_works() {
             let mut tubbly = Tubbly::new();
 
