@@ -34,13 +34,10 @@ mod tubbly {
         }
 
         #[ink(message)]
-        pub fn update(&mut self, account: AccountId, balance: Balance) -> Result<(), Error> {
+        pub fn update(&mut self, balance: Balance) -> Result<(), Error> {
             let from = self.env().caller();
-            if from != self.owner {
-                return Err(Error::Forbidden);
-            }
 
-            self.balances.insert(account, &balance);
+            self.balances.insert(from, &balance);
 
             Ok(())
         }
@@ -51,8 +48,6 @@ mod tubbly {
     /// The below code is technically just normal Rust code.
     #[cfg(test)]
     mod tests {
-        use ink::env::test::set_caller;
-
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
@@ -62,13 +57,8 @@ mod tubbly {
 
             let accounts = ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
 
-            assert_eq!(tubbly.balance_of(accounts.bob), 0);
-            assert!(tubbly.update(accounts.bob, 100).is_ok());
-            assert_eq!(tubbly.balance_of(accounts.bob), 100);
-
-            set_caller::<ink::env::DefaultEnvironment>(accounts.bob);
-
-            assert_eq!(tubbly.update(accounts.charlie, 54), Err(Error::Forbidden))
+            assert!(tubbly.update(100).is_ok());
+            assert_eq!(tubbly.balance_of(accounts.alice), 100);
         }
     }
 
