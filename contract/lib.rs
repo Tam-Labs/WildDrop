@@ -91,7 +91,7 @@ mod tubbly {
         #[ink(message)]
         pub fn submit(&mut self, balance: Balance) -> RequestId {
             let req_id = self.next_id;
-            self.next_id.checked_add(1).expect("Request ids exhausted.");
+            self.next_id = self.next_id.checked_add(1).expect("Request ids exhausted.");
 
             let callee = self.env().caller();
             let request = Request::new(callee, balance);
@@ -188,6 +188,19 @@ mod tubbly {
             tubbly.next_id = RequestId::MAX;
 
             tubbly.submit(100);
+        }
+
+        #[ink::test]
+        fn next_id_works() {
+            let mut tubbly = Tubbly::new();
+
+            let req_id_0 = tubbly.submit(100);
+            let req_id_1 = tubbly.submit(200);
+            let req_id_2 = tubbly.submit(300);
+
+            assert_eq!(req_id_0, 0);
+            assert_eq!(req_id_1, 1);
+            assert_eq!(req_id_2, 2);
         }
 
         #[ink::test]
