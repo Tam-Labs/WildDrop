@@ -12,7 +12,7 @@ import alephZero from './plugins/aleph-zero.js'
  */
 export async function bootstrap(): Promise<string> {
   // Initialize Fastify application.
-  const app = fastify()
+  const app = fastify({ logger: true })
 
   // Register database plugin to establish connection with the database.
   await app.register(database)

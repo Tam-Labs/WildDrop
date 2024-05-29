@@ -28,7 +28,8 @@
 mod tubbly {
     use ink::storage::Mapping;
 
-    type RequestId = u64;
+    type RequestId = u128;
+    type BalanceType = u128;
 
     #[derive(Clone)]
     #[cfg_attr(
@@ -38,11 +39,11 @@ mod tubbly {
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct Request {
         pub callee: AccountId,
-        pub balance: Balance,
+        pub balance: BalanceType,
     }
 
     impl Request {
-        pub fn new(callee: AccountId, balance: Balance) -> Self {
+        pub fn new(callee: AccountId, balance: BalanceType) -> Self {
             Self { callee, balance }
         }
     }
@@ -51,6 +52,7 @@ mod tubbly {
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         Forbidden,
+        NotFound,
     }
 
     #[ink(event)]
@@ -68,7 +70,7 @@ mod tubbly {
     #[ink(storage)]
     pub struct Tubbly {
         owner: AccountId,
-        balances: Mapping<AccountId, Balance>,
+        balances: Mapping<AccountId, BalanceType>,
         requests: Mapping<RequestId, Request>,
         next_id: RequestId,
     }
@@ -89,7 +91,7 @@ mod tubbly {
         }
 
         #[ink(message)]
-        pub fn submit(&mut self, balance: Balance) -> RequestId {
+        pub fn submit(&mut self, balance: BalanceType) -> RequestId {
             let req_id = self.next_id;
             self.next_id = self.next_id.checked_add(1).expect("Request ids exhausted.");
 
@@ -103,7 +105,7 @@ mod tubbly {
         }
 
         #[ink(message)]
-        pub fn confirm(&mut self, req_id: RequestId) -> Result<Balance, Error> {
+        pub fn confirm(&mut self, req_id: RequestId) -> Result<BalanceType, Error> {
             let from = self.env().caller();
             if from != self.owner {
                 return Err(Error::Forbidden);
@@ -119,7 +121,19 @@ mod tubbly {
         }
 
         #[ink(message)]
-        pub fn balance_of(&self, owner: AccountId) -> Balance {
+        pub fn request_of(&self, req_id: RequestId) -> Result<Request, Error> {
+            let from = self.env().caller();
+            if from != self.owner {
+                return Err(Error::Forbidden);
+            }
+
+            let request = self.requests.get(req_id).expect("Wrong request id");
+
+            Ok(request)
+        }
+
+        #[ink(message)]
+        pub fn balance_of(&self, owner: AccountId) -> BalanceType {
             self.balances.get(owner).unwrap_or_default()
         }
 

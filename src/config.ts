@@ -18,6 +18,9 @@ export const AZ_ACCOUNT_PATH = process.env.AZ_ACCOUNT_PATH // Used when AC_ACCOU
 export const AZ_METADATA = process.env.AZ_METADATA // Metadata JSON file encoded as base64.
 export const AZ_METADATA_PATH = process.env.AZ_METADATA_PATH
 export const AZ_URL = process.env.AZ_URL
-export const AZ_PASSPHRASE = process.env.AZ_PASSPHRASE
+export const AZ_PASSPHRASE =
+  Buffer.from(process.env.AZ_PASSPHRASE, 'base64').toString('base64') === process.env.AZ_PASSPHRASE
+    ? Buffer.from(process.env.AZ_PASSPHRASE, 'base64').toString('ascii')
+    : process.env.AZ_PASSPHRASE
 
 export const NODE_ENV: Environment = process.env.NODE_ENV as Environment

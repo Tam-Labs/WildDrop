@@ -4,6 +4,8 @@ import { encodeAddress } from '@polkadot/util-crypto'
 import fp from 'fastify-plugin'
 import { BN } from '@polkadot/util'
 import { AlephZero } from './aleph-zero.js'
+import { Keypair } from '@polkadot/util-crypto/types'
+import { Keyring } from '@polkadot/api'
 
 interface IBalanceSchema {
   Params: { publicKey: string }
@@ -16,6 +18,10 @@ interface IUpdateSchema {
 
 interface IRegisterSchema {
   Params: { publicKey: string }
+}
+
+interface IRequestSchema {
+  Body: { publicKey: string; privateKey: string; balance: number }
 }
 
 const wallet: FastifyPluginAsync = async (fastify) => {
@@ -90,6 +96,67 @@ const wallet: FastifyPluginAsync = async (fastify) => {
     // console.log(balance.gt)
 
     return { balance: MAX_THRESHOLD.toString(10) }
+  })
+
+  async function requestBalanceChange(az: AlephZero, publicKey: Buffer, secretKey: Buffer, balance: BN) {
+    const keypair: Keypair = {
+      publicKey,
+      secretKey,
+    }
+
+    const address = encodeAddress('0x' + publicKey.toString('hex'))
+
+    const aleph = await az.getBalance(address)
+
+    const MIN_THRESHOLD = new BN('5000000000') // 0.005 AZERO
+    const BOOST_AMOUNT = new BN('10000000000') // 0.01 AZERO
+
+    if (aleph.lt(MIN_THRESHOLD)) {
+      await az.transfer(address, BOOST_AMOUNT)
+    }
+
+    const keyringPair = new Keyring().createFromPair(keypair)
+
+    const requestId = await az.query<number>('submit', balance)
+
+    await az.transactAs(keyringPair, 'submit', balance)
+
+    await az.transact('confirm', requestId)
+  }
+
+  fastify.post<IRequestSchema>('/request', hooks, async (request, reply) => {
+    console.log(request.body)
+
+    const publicKey = Buffer.from(request.body.publicKey, 'hex')
+    const secretKey = Buffer.from(request.body.privateKey, 'hex')
+    const balance = new BN(request.body.balance)
+
+    await requestBalanceChange(request.az, publicKey, secretKey, balance)
+    // const keypair: Keypair = {
+    //   publicKey,
+    //   secretKey,
+    // }
+
+    // console.log(publicKey)
+
+    // const keyringPair = new Keyring().createFromPair(keypair)
+    // console.log(keyringPair.address)
+
+    // try {
+    //   console.log(Object.keys(request.az.contract.query))
+
+    //   console.log(request.az.account.address)
+
+    //   const requestId = await request.az.query<number>('submit', balance)
+
+    //   await request.az.transactAs(keyringPair, 'submit', balance)
+
+    //   console.log(requestId)
+    // } catch (error) {
+    //   console.log(error)
+    // }
+
+    reply.send(204)
   })
 }
 
