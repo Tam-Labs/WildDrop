@@ -24,6 +24,10 @@ interface IRequestSchema {
   Body: { publicKey: string; privateKey: string; balance: number }
 }
 
+interface ITransferSchema {
+  Body: { publicKey: string; motes: string }
+}
+
 const wallet: FastifyPluginAsync = async (fastify) => {
   const hooks = { onRequest: [fastify.authenticate], onSend: [fastify.encryptPayload] }
 
@@ -76,8 +80,6 @@ const wallet: FastifyPluginAsync = async (fastify) => {
 
     updateBalanceAsync(request.az, publicKey, balance)
 
-    console.log('go on')
-
     return reply.status(204).send()
   })
 
@@ -125,36 +127,22 @@ const wallet: FastifyPluginAsync = async (fastify) => {
   }
 
   fastify.post<IRequestSchema>('/request', hooks, async (request, reply) => {
-    console.log(request.body)
-
     const publicKey = Buffer.from(request.body.publicKey, 'hex')
     const secretKey = Buffer.from(request.body.privateKey, 'hex')
     const balance = new BN(request.body.balance)
 
     await requestBalanceChange(request.az, publicKey, secretKey, balance)
-    // const keypair: Keypair = {
-    //   publicKey,
-    //   secretKey,
-    // }
 
-    // console.log(publicKey)
+    reply.send(204)
+  })
 
-    // const keyringPair = new Keyring().createFromPair(keypair)
-    // console.log(keyringPair.address)
+  fastify.post<ITransferSchema>('/transfer', hooks, async (request, reply) => {
+    const publicKey = Buffer.from(request.body.publicKey, 'hex')
+    const motes = new BN(request.body.motes)
 
-    // try {
-    //   console.log(Object.keys(request.az.contract.query))
+    const address = encodeAddress('0x' + publicKey.toString('hex'))
 
-    //   console.log(request.az.account.address)
-
-    //   const requestId = await request.az.query<number>('submit', balance)
-
-    //   await request.az.transactAs(keyringPair, 'submit', balance)
-
-    //   console.log(requestId)
-    // } catch (error) {
-    //   console.log(error)
-    // }
+    await request.az.transfer(address, motes)
 
     reply.send(204)
   })

@@ -74,8 +74,6 @@ const alephZero: FastifyPluginAsync = async (fastify) => {
   const queryAs = async (address: string, name: string, ...params: unknown[]) => {
     const result = await contract.query[name](address, { gasLimit: readOnlyGasLimit }, ...params)
 
-    console.log(result.result.toHuman())
-    console.log(result.result.type)
     if (result.result.isOk) {
       const data = result.output.toPrimitive()
       if (Object.keys(data).includes('ok')) {
