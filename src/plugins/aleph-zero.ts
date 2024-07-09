@@ -17,13 +17,17 @@ import {
 } from '../config.js'
 import fp from 'fastify-plugin'
 
-interface AlephZero {
+export interface AlephZero {
   account: KeyringPair
   contract: ContractPromise
   readOnlyGasLimit: WeightV2
 
   query<T = unknown>(name: string, ...params: unknown[]): Promise<T>
+  queryAs<T = unknown>(address: string, name: string, ...params: unknown[]): Promise<T>
   transact(name: string, ...params: unknown[]): Promise<void>
+  transactAs(pair: KeyringPair, name: string, ...params: unknown[]): Promise<void>
+  getBalance(address: string): Promise<BN>
+  transfer(address: string, amount: BN): Promise<void>
 }
 
 declare module 'fastify' {
@@ -67,8 +71,8 @@ const alephZero: FastifyPluginAsync = async (fastify) => {
     proofSize: new BN(5_000_000_000_000).isub(BN_ONE),
   }) as WeightV2
 
-  const query = async (name: string, ...params: unknown[]) => {
-    const result = await contract.query[name](account.address, { gasLimit: readOnlyGasLimit }, ...params)
+  const queryAs = async (address: string, name: string, ...params: unknown[]) => {
+    const result = await contract.query[name](address, { gasLimit: readOnlyGasLimit }, ...params)
 
     if (result.result.isOk) {
       const data = result.output.toPrimitive()
@@ -81,17 +85,61 @@ const alephZero: FastifyPluginAsync = async (fastify) => {
     return null
   }
 
-  async function transact(name: string, ...params: unknown[]) {
-    const { gasRequired } = await contract.query[name](account.address, { gasLimit: readOnlyGasLimit }, ...params)
-
-    const options = {
-      gasLimit: api.registry.createType('WeightV2', gasRequired) as WeightV2,
-    }
-
-    await contract.tx[name](options, ...params).signAndSend(account)
+  const query = async (name: string, ...params: unknown[]) => {
+    return await queryAs(account.address, name, ...params)
   }
 
-  const alephZero: AlephZero = { contract, account, readOnlyGasLimit, query, transact }
+  async function transactAs(keyringPair: KeyringPair, name: string, ...params: unknown[]) {
+    const { gasRequired } = await contract.query[name](keyringPair.address, { gasLimit: readOnlyGasLimit }, ...params)
+
+    return new Promise<void>((resolve, reject) => {
+      const options = {
+        gasLimit: api.registry.createType('WeightV2', gasRequired) as WeightV2,
+      }
+
+      contract.tx[name](options, ...params).signAndSend(keyringPair, (result) => {
+        if (result.isError) {
+          reject()
+        } else if (result.status.isFinalized) {
+          resolve()
+        }
+      })
+    })
+  }
+
+  async function transact(name: string, ...params: unknown[]) {
+    return await transactAs(account, name, ...params)
+  }
+
+  async function getBalance(address: string): Promise<BN> {
+    const { data: balance } = (await api.query.system.account(address)) as any
+
+    return new BN(balance.free)
+  }
+
+  async function transfer(address: string, amount: BN): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      api.tx.balances.transferAllowDeath(address, amount).signAndSend(account, (result) => {
+        if (result.isError) {
+          reject()
+        } else if (result.status.isFinalized) {
+          resolve()
+        }
+      })
+    })
+  }
+
+  const alephZero: AlephZero = {
+    contract,
+    account,
+    readOnlyGasLimit,
+    query,
+    queryAs,
+    transact,
+    transactAs,
+    getBalance,
+    transfer,
+  }
 
   fastify.addHook('onRequest', async (request) => {
     request.az = alephZero

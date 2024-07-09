@@ -1,0 +1,608 @@
+{
+    "source": {
+        "hash": "0x0d671345e2b3c8f8c6f39f5e441d021987f4f18f04cb1936cc2a515b64d7f307",
+        "language": "ink! 5.0.0",
+        "compiler": "rustc 1.80.0-nightly",
+        "build_info": {
+            "build_mode": "Release",
+            "cargo_contract_version": "4.1.1",
+            "rust_toolchain": "nightly-x86_64-unknown-linux-gnu",
+            "wasm_opt_settings": {
+                "keep_debug_symbols": false,
+                "optimization_passes": "Z"
+            }
+        }
+    },
+    "contract": {
+        "name": "tubbly",
+        "version": "0.1.0",
+        "authors": [
+            "TAM LABS"
+        ]
+    },
+    "image": null,
+    "spec": {
+        "constructors": [
+            {
+                "args": [],
+                "default": false,
+                "docs": [
+                    "Constructor that initializes the `bool` value to the given `init_value`."
+                ],
+                "label": "new",
+                "payable": false,
+                "returnType": {
+                    "displayName": [
+                        "ink_primitives",
+                        "ConstructorResult"
+                    ],
+                    "type": 10
+                },
+                "selector": "0x9bae9d5e"
+            }
+        ],
+        "docs": [],
+        "environment": {
+            "accountId": {
+                "displayName": [
+                    "AccountId"
+                ],
+                "type": 0
+            },
+            "balance": {
+                "displayName": [
+                    "Balance"
+                ],
+                "type": 3
+            },
+            "blockNumber": {
+                "displayName": [
+                    "BlockNumber"
+                ],
+                "type": 18
+            },
+            "chainExtension": {
+                "displayName": [
+                    "ChainExtension"
+                ],
+                "type": 19
+            },
+            "hash": {
+                "displayName": [
+                    "Hash"
+                ],
+                "type": 16
+            },
+            "maxEventTopics": 4,
+            "staticBufferSize": 16384,
+            "timestamp": {
+                "displayName": [
+                    "Timestamp"
+                ],
+                "type": 17
+            }
+        },
+        "events": [],
+        "lang_error": {
+            "displayName": [
+                "ink",
+                "LangError"
+            ],
+            "type": 11
+        },
+        "messages": [
+            {
+                "args": [
+                    {
+                        "label": "owner",
+                        "type": {
+                            "displayName": [
+                                "AccountId"
+                            ],
+                            "type": 0
+                        }
+                    }
+                ],
+                "default": false,
+                "docs": [],
+                "label": "balance_of",
+                "mutates": false,
+                "payable": false,
+                "returnType": {
+                    "displayName": [
+                        "ink",
+                        "MessageResult"
+                    ],
+                    "type": 12
+                },
+                "selector": "0x0f755a56"
+            },
+            {
+                "args": [
+                    {
+                        "label": "balance",
+                        "type": {
+                            "displayName": [
+                                "Balance"
+                            ],
+                            "type": 3
+                        }
+                    }
+                ],
+                "default": false,
+                "docs": [],
+                "label": "update",
+                "mutates": true,
+                "payable": false,
+                "returnType": {
+                    "displayName": [
+                        "ink",
+                        "MessageResult"
+                    ],
+                    "type": 13
+                },
+                "selector": "0x5f234f5d"
+            }
+        ]
+    },
+    "storage": {
+        "root": {
+            "layout": {
+                "struct": {
+                    "fields": [
+                        {
+                            "layout": {
+                                "leaf": {
+                                    "key": "0x00000000",
+                                    "ty": 0
+                                }
+                            },
+                            "name": "owner"
+                        },
+                        {
+                            "layout": {
+                                "root": {
+                                    "layout": {
+                                        "leaf": {
+                                            "key": "0x391d37bc",
+                                            "ty": 3
+                                        }
+                                    },
+                                    "root_key": "0x391d37bc",
+                                    "ty": 4
+                                }
+                            },
+                            "name": "balances"
+                        }
+                    ],
+                    "name": "Tubbly"
+                }
+            },
+            "root_key": "0x00000000",
+            "ty": 9
+        }
+    },
+    "types": [
+        {
+            "id": 0,
+            "type": {
+                "def": {
+                    "composite": {
+                        "fields": [
+                            {
+                                "type": 1,
+                                "typeName": "[u8; 32]"
+                            }
+                        ]
+                    }
+                },
+                "path": [
+                    "ink_primitives",
+                    "types",
+                    "AccountId"
+                ]
+            }
+        },
+        {
+            "id": 1,
+            "type": {
+                "def": {
+                    "array": {
+                        "len": 32,
+                        "type": 2
+                    }
+                }
+            }
+        },
+        {
+            "id": 2,
+            "type": {
+                "def": {
+                    "primitive": "u8"
+                }
+            }
+        },
+        {
+            "id": 3,
+            "type": {
+                "def": {
+                    "primitive": "u128"
+                }
+            }
+        },
+        {
+            "id": 4,
+            "type": {
+                "def": {
+                    "composite": {}
+                },
+                "params": [
+                    {
+                        "name": "K",
+                        "type": 0
+                    },
+                    {
+                        "name": "V",
+                        "type": 3
+                    },
+                    {
+                        "name": "KeyType",
+                        "type": 5
+                    }
+                ],
+                "path": [
+                    "ink_storage",
+                    "lazy",
+                    "mapping",
+                    "Mapping"
+                ]
+            }
+        },
+        {
+            "id": 5,
+            "type": {
+                "def": {
+                    "composite": {}
+                },
+                "params": [
+                    {
+                        "name": "L",
+                        "type": 6
+                    },
+                    {
+                        "name": "R",
+                        "type": 7
+                    }
+                ],
+                "path": [
+                    "ink_storage_traits",
+                    "impls",
+                    "ResolverKey"
+                ]
+            }
+        },
+        {
+            "id": 6,
+            "type": {
+                "def": {
+                    "composite": {}
+                },
+                "path": [
+                    "ink_storage_traits",
+                    "impls",
+                    "AutoKey"
+                ]
+            }
+        },
+        {
+            "id": 7,
+            "type": {
+                "def": {
+                    "composite": {}
+                },
+                "params": [
+                    {
+                        "name": "ParentKey",
+                        "type": 8
+                    }
+                ],
+                "path": [
+                    "ink_storage_traits",
+                    "impls",
+                    "ManualKey"
+                ]
+            }
+        },
+        {
+            "id": 8,
+            "type": {
+                "def": {
+                    "tuple": []
+                }
+            }
+        },
+        {
+            "id": 9,
+            "type": {
+                "def": {
+                    "composite": {
+                        "fields": [
+                            {
+                                "name": "owner",
+                                "type": 0,
+                                "typeName": "<AccountId as::ink::storage::traits::AutoStorableHint<::ink::\nstorage::traits::ManualKey<936542896u32, ()>,>>::Type"
+                            },
+                            {
+                                "name": "balances",
+                                "type": 4,
+                                "typeName": "<Mapping<AccountId, Balance> as::ink::storage::traits::\nAutoStorableHint<::ink::storage::traits::ManualKey<3157728569u32,\n()>,>>::Type"
+                            }
+                        ]
+                    }
+                },
+                "path": [
+                    "tubbly",
+                    "tubbly",
+                    "Tubbly"
+                ]
+            }
+        },
+        {
+            "id": 10,
+            "type": {
+                "def": {
+                    "variant": {
+                        "variants": [
+                            {
+                                "fields": [
+                                    {
+                                        "type": 8
+                                    }
+                                ],
+                                "index": 0,
+                                "name": "Ok"
+                            },
+                            {
+                                "fields": [
+                                    {
+                                        "type": 11
+                                    }
+                                ],
+                                "index": 1,
+                                "name": "Err"
+                            }
+                        ]
+                    }
+                },
+                "params": [
+                    {
+                        "name": "T",
+                        "type": 8
+                    },
+                    {
+                        "name": "E",
+                        "type": 11
+                    }
+                ],
+                "path": [
+                    "Result"
+                ]
+            }
+        },
+        {
+            "id": 11,
+            "type": {
+                "def": {
+                    "variant": {
+                        "variants": [
+                            {
+                                "index": 1,
+                                "name": "CouldNotReadInput"
+                            }
+                        ]
+                    }
+                },
+                "path": [
+                    "ink_primitives",
+                    "LangError"
+                ]
+            }
+        },
+        {
+            "id": 12,
+            "type": {
+                "def": {
+                    "variant": {
+                        "variants": [
+                            {
+                                "fields": [
+                                    {
+                                        "type": 3
+                                    }
+                                ],
+                                "index": 0,
+                                "name": "Ok"
+                            },
+                            {
+                                "fields": [
+                                    {
+                                        "type": 11
+                                    }
+                                ],
+                                "index": 1,
+                                "name": "Err"
+                            }
+                        ]
+                    }
+                },
+                "params": [
+                    {
+                        "name": "T",
+                        "type": 3
+                    },
+                    {
+                        "name": "E",
+                        "type": 11
+                    }
+                ],
+                "path": [
+                    "Result"
+                ]
+            }
+        },
+        {
+            "id": 13,
+            "type": {
+                "def": {
+                    "variant": {
+                        "variants": [
+                            {
+                                "fields": [
+                                    {
+                                        "type": 14
+                                    }
+                                ],
+                                "index": 0,
+                                "name": "Ok"
+                            },
+                            {
+                                "fields": [
+                                    {
+                                        "type": 11
+                                    }
+                                ],
+                                "index": 1,
+                                "name": "Err"
+                            }
+                        ]
+                    }
+                },
+                "params": [
+                    {
+                        "name": "T",
+                        "type": 14
+                    },
+                    {
+                        "name": "E",
+                        "type": 11
+                    }
+                ],
+                "path": [
+                    "Result"
+                ]
+            }
+        },
+        {
+            "id": 14,
+            "type": {
+                "def": {
+                    "variant": {
+                        "variants": [
+                            {
+                                "fields": [
+                                    {
+                                        "type": 8
+                                    }
+                                ],
+                                "index": 0,
+                                "name": "Ok"
+                            },
+                            {
+                                "fields": [
+                                    {
+                                        "type": 15
+                                    }
+                                ],
+                                "index": 1,
+                                "name": "Err"
+                            }
+                        ]
+                    }
+                },
+                "params": [
+                    {
+                        "name": "T",
+                        "type": 8
+                    },
+                    {
+                        "name": "E",
+                        "type": 15
+                    }
+                ],
+                "path": [
+                    "Result"
+                ]
+            }
+        },
+        {
+            "id": 15,
+            "type": {
+                "def": {
+                    "variant": {
+                        "variants": [
+                            {
+                                "index": 0,
+                                "name": "Forbidden"
+                            }
+                        ]
+                    }
+                },
+                "path": [
+                    "tubbly",
+                    "tubbly",
+                    "Error"
+                ]
+            }
+        },
+        {
+            "id": 16,
+            "type": {
+                "def": {
+                    "composite": {
+                        "fields": [
+                            {
+                                "type": 1,
+                                "typeName": "[u8; 32]"
+                            }
+                        ]
+                    }
+                },
+                "path": [
+                    "ink_primitives",
+                    "types",
+                    "Hash"
+                ]
+            }
+        },
+        {
+            "id": 17,
+            "type": {
+                "def": {
+                    "primitive": "u64"
+                }
+            }
+        },
+        {
+            "id": 18,
+            "type": {
+                "def": {
+                    "primitive": "u32"
+                }
+            }
+        },
+        {
+            "id": 19,
+            "type": {
+                "def": {
+                    "variant": {}
+                },
+                "path": [
+                    "ink_env",
+                    "types",
+                    "NoChainExtension"
+                ]
+            }
+        }
+    ],
+    "version": 5
+}
